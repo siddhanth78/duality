@@ -33,10 +33,10 @@ while True:
 	mx, my = pygame.mouse.get_pos()
 	mx, my = int(mx), int(my)
 
-	pygame.draw.line(screen, (128, 128, 128), (500, 0), (500, 500), 7)
-	pygame.draw.line(screen, (128, 128, 128), (250, 0), (250, 500), 3)
-	pygame.draw.line(screen, (128, 128, 128), (750, 0), (750, 500), 3)
-	pygame.draw.line(screen, (128, 128, 128), (0, 250), (1000, 250), 3)
+	pygame.draw.line(screen, (0, 255, 255), (500, 0), (500, 500), 7)
+	pygame.draw.line(screen, (64, 64, 64), (250, 0), (250, 500), 3)
+	pygame.draw.line(screen, (64, 64, 64), (750, 0), (750, 500), 3)
+	pygame.draw.line(screen, (64, 64, 64), (0, 250), (1000, 250), 3)
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
