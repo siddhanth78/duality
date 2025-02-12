@@ -18,9 +18,9 @@ class Point(pygame.sprite.Sprite):
 class Line(pygame.sprite.Sprite):
 	def __init__(self, px, py, sx, ex):
 		self.startx = sx
-		self.starty = 250 + (((px*(-250))/50)-py)
+		self.starty = 250 + (((px*(-5)))-py)
 		self.endx = ex
-		self.endy = 250 + ((px*250)/50 - py)
+		self.endy = 250 + ((px*5) - py)
 		self.color = (255, 255, 255)
 
 point_selected = None
@@ -75,9 +75,9 @@ while True:
 		all_points[point_selected].x, all_points[point_selected].y = mx, my
 		all_points[point_selected].rect = Rect(mx-5, my-5, 10, 10)
 		other_lines[point_selected].startx = sx
-		other_lines[point_selected].starty = 250 + (((px*(-250))/50)-py)
+		other_lines[point_selected].starty = 250 + (((px*(-5)))-py)
 		other_lines[point_selected].endx = ex
-		other_lines[point_selected].endy = 250 + ((px*250)/50 - py)
+		other_lines[point_selected].endy = 250 + ((px*5) - py)
 
 	for p in range(len(all_points)):
 		if all_points[p].rect.collidepoint((mx, my)):
