@@ -1,6 +1,5 @@
 import pygame, sys
 from pygame.locals import *
-import numpy as np
 
 screen = pygame.display.set_mode((1000, 500))
 clock = pygame.time.Clock()
