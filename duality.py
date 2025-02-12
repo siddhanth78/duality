@@ -3,7 +3,6 @@ from pygame.locals import *
 import numpy as np
 
 screen = pygame.display.set_mode((1000, 500))
-mode = 'point'
 clock = pygame.time.Clock()
 
 all_points = []
@@ -17,14 +16,16 @@ class Point(pygame.sprite.Sprite):
 		self.color = (255, 255, 255)
 
 class Line(pygame.sprite.Sprite):
-	def __init__(self, px, py):
-		self.startx = 500
+	def __init__(self, px, py, sx, ex):
+		self.startx = sx
 		self.starty = 250 + (((px*(-250))/100)-py)
-		self.endx = 1000
+		self.endx = ex
 		self.endy = 250 + ((px*250)/100 - py)
 		self.color = (255, 255, 255)
 
 point_selected = None
+
+mode = "point"
 
 while True:
 	screen.fill((0,0,0))
@@ -46,25 +47,37 @@ while True:
 				if mx <= 500:
 					px = mx - 250
 					py = my - 250
+					sx, ex = 500, 1000
+				elif mx > 500:
+					px = mx - 750
+					py = my - 250
+					sx, ex = 0, 500
+				if point_selected is None:
+					for p in range(len(all_points)):
+						if all_points[p].rect.collidepoint((mx, my)):
+							point_selected = p
+							break
 					if point_selected is None:
-						for p in range(len(all_points)):
-							if all_points[p].rect.collidepoint((mx, my)):
-								point_selected = p
-								break
-						if point_selected is None:
-							all_points.append(Point(mx, my))
-							other_lines.append(Line(px, py))
-					elif point_selected is not None:
-							point_selected = None
+						all_points.append(Point(mx, my))
+						other_lines.append(Line(px, py, sx, ex))
+				elif point_selected is not None:
+						point_selected = None
 
 	if point_selected is not None:
 		if mx <= 500:
 			px = mx - 250
 			py = my - 250
-			all_points[point_selected].x, all_points[point_selected].y = mx, my
-			all_points[point_selected].rect = Rect(mx-5, my-5, 10, 10)
-			other_lines[point_selected].starty = 250 + (((px*(-250))/100)-py)
-			other_lines[point_selected].endy = 250 + ((px*250)/100 - py)
+			sx, ex = 500, 1000
+		elif mx > 500:
+			px = mx - 750
+			py = my - 250
+			sx, ex = 0, 500
+		all_points[point_selected].x, all_points[point_selected].y = mx, my
+		all_points[point_selected].rect = Rect(mx-5, my-5, 10, 10)
+		other_lines[point_selected].startx = sx
+		other_lines[point_selected].starty = 250 + (((px*(-250))/100)-py)
+		other_lines[point_selected].endx = ex
+		other_lines[point_selected].endy = 250 + ((px*250)/100 - py)
 
 	for p in range(len(all_points)):
 		if all_points[p].rect.collidepoint((mx, my)):
