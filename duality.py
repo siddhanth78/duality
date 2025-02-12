@@ -6,6 +6,7 @@ clock = pygame.time.Clock()
 
 all_points = []
 other_lines = []
+#TODO segments = []
 
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
