@@ -25,7 +25,25 @@ class Line(pygame.sprite.Sprite):
 		self.endy = 250 + ((px*5) - py)
 		self.color = (255, 255, 255)
 
-#def get_segment_dual(e1, e2):
+def get_segment_dual(e1, e2):
+	x_0, y_0 = e1[0], e1[1]
+	x_1, y_1 = e2[0], e2[1]
+	
+	if x_0 <= 500:
+		x_0 = x_0 - 250
+		x_1 = x_1 - 250
+	else:
+		x_0 = x_0 - 750
+		x_1 = x_1 - 750
+	
+	y_0 = y_0 - 250
+	y_1 = y_1 - 250
+
+	m = (y_1 - y_0)/(x_1 - x_0)
+	x = int(750 + m*50)
+	y = 250 + int(m*x_0 - y_0)
+	print(x,y)
+	return Point(x, y)
 
 point_selected = None
 end_point_1 = None
@@ -46,6 +64,13 @@ while True:
 		if event.type == pygame.QUIT:
 			pygame.quit()
 			sys.exit(0)
+		elif event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_c:
+				segments = []
+				all_points = []
+				point_dual = []
+				segment_dual = []
+				segment_eps = []
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button == 1:
 				if mx <= 500:
@@ -64,6 +89,11 @@ while True:
 					if point_selected is None:
 						all_points.append(Point(mx, my))
 						point_dual.append(Line(px, py, sx, ex))
+					elif point_selected is not None:
+						seg_changed = []
+						for s in range(len(segment_eps)):
+							if point_selected in segment_eps[s]:
+								seg_changed.append(s)
 				elif point_selected is not None:
 						point_selected = None
 
@@ -99,9 +129,10 @@ while True:
 							if ((all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500)
 								or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500)) and ((end_point_1, end_point_2) not in segment_eps):
 								segment_eps.append((end_point_1, end_point_2))
-								segments.append(((all_points[end_point_1].x, all_points[end_point_1].y),
-												(all_points[end_point_2].x, all_points[end_point_2].y)))
-								#TODO: point representation of segment
+								sorted_eps = sorted([(all_points[end_point_1].x, all_points[end_point_1].y), (all_points[end_point_2].x, all_points[end_point_2].y)],
+													key=lambda point_: point_[0])
+								segments.append((sorted_eps[0], sorted_eps[1]))
+								segment_dual.append(get_segment_dual(sorted_eps[0], sorted_eps[1]))
 					end_point_1 = None
 					end_point_2 = None
 
@@ -136,6 +167,7 @@ while True:
 
 	for s in range(len(segments)):
 		pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1])
+		pygame.draw.circle(screen, segment_dual[s].color, (segment_dual[s].x, segment_dual[s].y), 5)
 
 	pygame.display.flip()
 	clock.tick(15)
