@@ -25,6 +25,8 @@ class Line(pygame.sprite.Sprite):
 		self.endy = 250 + ((px*5) - py)
 		self.color = (255, 255, 255)
 
+#def get_segment_dual(e1, e2):
+
 point_selected = None
 end_point_1 = None
 end_point_2 = None
