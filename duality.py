@@ -42,10 +42,10 @@ def get_segment_dual(e1, e2):
 	m = (y_1 - y_0)/(x_1 - x_0)
 	x = int(750 + m*50)
 	y = 250 + int(m*x_0 - y_0)
-	print(x,y)
 	return Point(x, y)
 
 point_selected = None
+seg_selected = None
 end_point_1 = None
 end_point_2 = None
 
@@ -93,9 +93,12 @@ while True:
 						seg_changed = []
 						for s in range(len(segment_eps)):
 							if point_selected in segment_eps[s]:
-								seg_changed.append(s)
+								seg_changed.append([s, segment_eps[s].index(point_selected)])
+						if seg_changed != []:
+							seg_selected = True
 				elif point_selected is not None:
 						point_selected = None
+						seg_selected = False
 
 			elif event.button == 3 and point_selected is None:
 				if end_point_1 is None:
@@ -126,12 +129,19 @@ while True:
 								segments = []
 								segment_eps = []
 						else:
-							if ((all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500)
-								or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500)) and ((end_point_1, end_point_2) not in segment_eps):
-								segment_eps.append((end_point_1, end_point_2))
-								sorted_eps = sorted([(all_points[end_point_1].x, all_points[end_point_1].y), (all_points[end_point_2].x, all_points[end_point_2].y)],
+							if (((all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500)
+								or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500))
+								and (((end_point_1, end_point_2) not in segment_eps) and ((end_point_2, end_point_1) not in segment_eps))):
+								if all_points[end_point_1].y == all_points[end_point_2].y:
+									all_points[end_point_2].y -= 1
+								sorted_eps = sorted([[all_points[end_point_1].x, all_points[end_point_1].y], [all_points[end_point_2].x, all_points[end_point_2].y]],
 													key=lambda point_: point_[0])
-								segments.append((sorted_eps[0], sorted_eps[1]))
+								segments.append([sorted_eps[0], sorted_eps[1]])
+								if [sorted_eps[0], sorted_eps[1]] == [[all_points[end_point_1].x, all_points[end_point_1].y],
+																	[all_points[end_point_2].x, all_points[end_point_2].y]]:
+									segment_eps.append([end_point_1, end_point_2])
+								else:
+									segment_eps.append([end_point_2, end_point_1])
 								segment_dual.append(get_segment_dual(sorted_eps[0], sorted_eps[1]))
 					end_point_1 = None
 					end_point_2 = None
@@ -151,6 +161,18 @@ while True:
 		point_dual[point_selected].starty = 250 + (((px*(-5)))-py)
 		point_dual[point_selected].endx = ex
 		point_dual[point_selected].endy = 250 + ((px*5) - py)
+		if seg_selected == True:
+			for sc in seg_changed:
+				segments[sc[0]][sc[1]] = [all_points[point_selected].x, all_points[point_selected].y]
+				if segments[sc[0]][0][1] == segments[sc[0]][1][1]:
+					segments[sc[0]][1][1] -= 1
+				sorted_eps = sorted([segments[sc[0]][0], segments[sc[0]][1]],
+									key=lambda point_: point_[0])
+				if (sorted_eps[0], sorted_eps[1]) != (segments[sc[0]][0], segments[sc[0]][1]):
+					segment_eps[sc[0]] = [segment_eps[sc[0]][1], segment_eps[sc[0]][0]]
+					segments[sc[0]] = [sorted_eps[0], sorted_eps[1]]
+					seg_changed[seg_changed.index(sc)][1] = 0 if seg_changed[seg_changed.index(sc)][1] == 1 else 1
+				segment_dual[sc[0]] = get_segment_dual(sorted_eps[0], sorted_eps[1])
 
 	for p in range(len(all_points)):
 		if all_points[p].rect.collidepoint((mx, my)):
