@@ -7,6 +7,8 @@ clock = pygame.time.Clock()
 all_points = []
 point_dual = []
 segments = []
+segment_dual = []
+segment_eps = []
 
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
@@ -81,19 +83,25 @@ while True:
 						if flag == 1:
 							seg_pops = []
 							for s in range(len(segments)):
-								if (all_points[p].x, all_points[p].y) in segments[s]:
+								if p in segment_eps[s]:
 									seg_pops.append(s)
 							for i in range(len(seg_pops)-1, -1, -1):
 								segments.pop(seg_pops[i])
+								segment_eps.pop(seg_pops[i])
 							all_points.pop(p)
 							point_dual.pop(p)
+							if all_points == []:
+								segments = []
+								segment_eps = []
 						else:
-							if (all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500) or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500):
-								segments.append(((end_point_1, end_point_2),
-												(all_points[end_point_1].x, all_points[end_point_1].y),
+							if ((all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500)
+								or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500)) and ((end_point_1, end_point_2) not in segment_eps):
+								segment_eps.append((end_point_1, end_point_2))
+								segments.append(((all_points[end_point_1].x, all_points[end_point_1].y),
 												(all_points[end_point_2].x, all_points[end_point_2].y)))
+								#TODO: point representation of segment
 					end_point_1 = None
-					end_point_2 = None	
+					end_point_2 = None
 
 	if point_selected is not None:
 		if mx <= 500:
@@ -125,7 +133,7 @@ while True:
 		pygame.draw.line(screen, point_dual[p].color, (point_dual[p].startx, point_dual[p].starty), (point_dual[p].endx, point_dual[p].endy))
 
 	for s in range(len(segments)):
-		pygame.draw.line(screen, (255, 255, 255), segments[s][1], segments[s][2])
+		pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1])
 
 	pygame.display.flip()
 	clock.tick(15)
