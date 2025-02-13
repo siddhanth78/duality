@@ -5,8 +5,8 @@ screen = pygame.display.set_mode((1000, 500))
 clock = pygame.time.Clock()
 
 all_points = []
-other_lines = []
-#TODO segments = []
+point_dual = []
+segments = []
 
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
@@ -24,8 +24,8 @@ class Line(pygame.sprite.Sprite):
 		self.color = (255, 255, 255)
 
 point_selected = None
-
-mode = "point"
+end_point_1 = None
+end_point_2 = None
 
 while True:
 	screen.fill((0,0,0))
@@ -59,9 +59,40 @@ while True:
 							break
 					if point_selected is None:
 						all_points.append(Point(mx, my))
-						other_lines.append(Line(px, py, sx, ex))
+						point_dual.append(Line(px, py, sx, ex))
 				elif point_selected is not None:
 						point_selected = None
+
+			elif event.button == 3 and point_selected is None:
+				if end_point_1 is None:
+					for p in range(len(all_points)):
+						if all_points[p].rect.collidepoint((mx, my)):
+							end_point_1 = p
+							break
+				elif end_point_1 is not None:
+					flag = 0
+					for p in range(len(all_points)):
+						if all_points[p].rect.collidepoint((mx, my)):
+							end_point_2 = p
+							if end_point_1 == end_point_2:
+								flag = 1
+							break
+					if end_point_2 is not None:
+						if flag == 1:
+							seg_pops = []
+							for s in range(len(segments)):
+								if (all_points[p].x, all_points[p].y) in segments[s]:
+									seg_pops.append(s)
+							for i in range(len(seg_pops)-1, -1, -1):
+								segments.pop(seg_pops[i])
+							all_points.pop(p)
+							point_dual.pop(p)
+						else:
+							segments.append(((end_point_1, end_point_2),
+											(all_points[end_point_1].x, all_points[end_point_1].y),
+											(all_points[end_point_2].x, all_points[end_point_2].y)))
+					end_point_1 = None
+					end_point_2 = None	
 
 	if point_selected is not None:
 		if mx <= 500:
@@ -74,22 +105,26 @@ while True:
 			sx, ex = 0, 500
 		all_points[point_selected].x, all_points[point_selected].y = mx, my
 		all_points[point_selected].rect = Rect(mx-5, my-5, 10, 10)
-		other_lines[point_selected].startx = sx
-		other_lines[point_selected].starty = 250 + (((px*(-5)))-py)
-		other_lines[point_selected].endx = ex
-		other_lines[point_selected].endy = 250 + ((px*5) - py)
+		point_dual[point_selected].startx = sx
+		point_dual[point_selected].starty = 250 + (((px*(-5)))-py)
+		point_dual[point_selected].endx = ex
+		point_dual[point_selected].endy = 250 + ((px*5) - py)
 
 	for p in range(len(all_points)):
 		if all_points[p].rect.collidepoint((mx, my)):
-			all_points[p].collided = True
 			all_points[p].color = (255, 0, 0)
-			other_lines[p].color = (0, 255, 0)
+			point_dual[p].color = (0, 255, 0)
 		else:
-			all_points[p].collided = False
 			all_points[p].color = (255, 255, 255)
-			other_lines[p].color = (255, 255, 255)
+			point_dual[p].color = (255, 255, 255)
+
+		if p == end_point_1:
+			all_points[p].color = (0, 0, 255)
 		pygame.draw.circle(screen, all_points[p].color, (all_points[p].x, all_points[p].y), 5)
-		pygame.draw.line(screen, other_lines[p].color, (other_lines[p].startx, other_lines[p].starty), (other_lines[p].endx, other_lines[p].endy))
+		pygame.draw.line(screen, point_dual[p].color, (point_dual[p].startx, point_dual[p].starty), (point_dual[p].endx, point_dual[p].endy))
+
+	for s in range(len(segments)):
+		pygame.draw.line(screen, (255, 255, 255), segments[s][1], segments[s][2])
 
 	pygame.display.flip()
 	clock.tick(15)
