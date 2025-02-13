@@ -88,9 +88,10 @@ while True:
 							all_points.pop(p)
 							point_dual.pop(p)
 						else:
-							segments.append(((end_point_1, end_point_2),
-											(all_points[end_point_1].x, all_points[end_point_1].y),
-											(all_points[end_point_2].x, all_points[end_point_2].y)))
+							if (all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500) or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500):
+								segments.append(((end_point_1, end_point_2),
+												(all_points[end_point_1].x, all_points[end_point_1].y),
+												(all_points[end_point_2].x, all_points[end_point_2].y)))
 					end_point_1 = None
 					end_point_2 = None	
 
