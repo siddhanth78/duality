@@ -39,6 +39,8 @@ def get_segment_dual(e1, e2):
 	y_0 = y_0 - 250
 	y_1 = y_1 - 250
 
+	if x_0 == x_1: x_1 += 1
+
 	m = (y_1 - y_0)/(x_1 - x_0)
 	x = int(750 + m*50)
 	y = 250 + int(m*x_0 - y_0)
@@ -163,6 +165,10 @@ while True:
 		point_dual[point_selected].endy = 250 + ((px*5) - py)
 		if seg_selected == True:
 			for sc in seg_changed:
+				if (segments[sc[0]][(sc[1]-1)*(-1)][0] <= 500 and all_points[point_selected].x > 500):
+					all_points[point_selected].x = 500
+				elif (segments[sc[0]][(sc[1]-1)*(-1)][0] > 500 and all_points[point_selected].x <= 501):
+					all_points[point_selected].x = 501
 				segments[sc[0]][sc[1]] = [all_points[point_selected].x, all_points[point_selected].y]
 				if segments[sc[0]][0][1] == segments[sc[0]][1][1]:
 					segments[sc[0]][1][1] -= 1
