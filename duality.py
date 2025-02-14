@@ -32,9 +32,11 @@ def get_segment_dual(e1, e2):
 	if x_0 <= 500:
 		x_0 = x_0 - 250
 		x_1 = x_1 - 250
+		x_flag = 0
 	else:
 		x_0 = x_0 - 750
 		x_1 = x_1 - 750
+		x_flag = 1
 	
 	y_0 = y_0 - 250
 	y_1 = y_1 - 250
@@ -42,8 +44,17 @@ def get_segment_dual(e1, e2):
 	if x_0 == x_1: x_1 += 1
 
 	m = (y_1 - y_0)/(x_1 - x_0)
-	x = int(750 + m*50)
+	if x_flag == 0:
+		x = int(750 + m*50)
+	elif x_flag == 1:
+		x = int(250 + m*50)
 	y = 250 + int(m*x_0 - y_0)
+
+	if x_flag == 0 and x < 500:
+		x = 1500
+	elif x_flag == 1 and x > 500:
+		x = -10
+
 	return Point(x, y)
 
 point_selected = None
