@@ -1,5 +1,6 @@
 import pygame, sys
 from pygame.locals import *
+import random
 
 screen = pygame.display.set_mode((1000, 500))
 clock = pygame.time.Clock()
@@ -9,6 +10,7 @@ point_dual = []
 segments = []
 segment_dual = []
 segment_eps = []
+wedges = []
 
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
@@ -24,6 +26,14 @@ class Line(pygame.sprite.Sprite):
 		self.endx = ex
 		self.endy = 250 + ((px*5) - py)
 		self.color = (255, 255, 255)
+
+def draw_polygon_alpha(surface, color, points):
+	lx, ly = zip(*points)
+	min_x, min_y, max_x, max_y = min(lx), min(ly), max(lx), max(ly)
+	target_rect = pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)
+	shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
+	pygame.draw.polygon(shape_surf, color, [(x - min_x, y - min_y) for x, y in points])
+	surface.blit(shape_surf, target_rect)
 
 def get_segment_dual(e1, e2):
 	x_0, y_0 = e1[0], e1[1]
@@ -156,6 +166,11 @@ while True:
 								else:
 									segment_eps.append([end_point_2, end_point_1])
 								segment_dual.append(get_segment_dual(sorted_eps[0], sorted_eps[1]))
+								p1, p2 = segment_eps[-1][0], segment_eps[-1][1]
+								color_delta = random.randint(-120, 30)
+								wedges.append([[point_dual[p1].startx, point_dual[p1].starty, point_dual[p1].endx, point_dual[p1].endy],
+												[point_dual[p2].startx, point_dual[p2].starty, point_dual[p2].endx, point_dual[p2].endy],
+												segment_dual[-1], (128+color_delta, 128+color_delta, 128-color_delta, 127)])
 					end_point_1 = None
 					end_point_2 = None
 
@@ -176,10 +191,10 @@ while True:
 		point_dual[point_selected].endy = 250 + ((px*5) - py)
 		if seg_selected == True:
 			for sc in seg_changed:
-				if (segments[sc[0]][(sc[1]-1)*(-1)][0] <= 500 and all_points[point_selected].x > 500):
-					all_points[point_selected].x = 500
-				elif (segments[sc[0]][(sc[1]-1)*(-1)][0] > 500 and all_points[point_selected].x <= 501):
-					all_points[point_selected].x = 501
+				if (segments[sc[0]][(sc[1]-1)*(-1)][0] <= 495 and all_points[point_selected].x > 495):
+					all_points[point_selected].x = 495
+				elif (segments[sc[0]][(sc[1]-1)*(-1)][0] > 505 and all_points[point_selected].x <= 505):
+					all_points[point_selected].x = 505
 				segments[sc[0]][sc[1]] = [all_points[point_selected].x, all_points[point_selected].y]
 				if segments[sc[0]][0][1] == segments[sc[0]][1][1]:
 					segments[sc[0]][1][1] -= 1
@@ -190,6 +205,16 @@ while True:
 					segments[sc[0]] = [sorted_eps[0], sorted_eps[1]]
 					seg_changed[seg_changed.index(sc)][1] = 0 if seg_changed[seg_changed.index(sc)][1] == 1 else 1
 				segment_dual[sc[0]] = get_segment_dual(sorted_eps[0], sorted_eps[1])
+				p1, p2 = segment_eps[sc[0]][0], segment_eps[sc[0]][1]
+				wedges[sc[0]] = [[point_dual[p1].startx, point_dual[p1].starty, point_dual[p1].endx, point_dual[p1].endy],
+								[point_dual[p2].startx, point_dual[p2].starty, point_dual[p2].endx, point_dual[p2].endy],
+								segment_dual[sc[0]], wedges[sc[0]][3]]
+
+	for s in range(len(segments)):
+		pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1])
+		pygame.draw.circle(screen, segment_dual[s].color, (segment_dual[s].x, segment_dual[s].y), 5)
+		draw_polygon_alpha(screen, wedges[s][3], ((wedges[s][0][0], wedges[s][0][1]), (wedges[s][1][0], wedges[s][1][1]), (wedges[s][2].x, wedges[s][2].y)))
+		draw_polygon_alpha(screen, wedges[s][3], ((wedges[s][0][2], wedges[s][0][3]), (wedges[s][1][2], wedges[s][1][3]), (wedges[s][2].x, wedges[s][2].y)))
 
 	for p in range(len(all_points)):
 		if all_points[p].rect.collidepoint((mx, my)):
@@ -204,9 +229,5 @@ while True:
 		pygame.draw.circle(screen, all_points[p].color, (all_points[p].x, all_points[p].y), 5)
 		pygame.draw.line(screen, point_dual[p].color, (point_dual[p].startx, point_dual[p].starty), (point_dual[p].endx, point_dual[p].endy))
 
-	for s in range(len(segments)):
-		pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1])
-		pygame.draw.circle(screen, segment_dual[s].color, (segment_dual[s].x, segment_dual[s].y), 5)
-
-	pygame.display.flip()
+	pygame.display.update()
 	clock.tick(15)
