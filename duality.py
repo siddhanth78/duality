@@ -11,6 +11,9 @@ segments = []
 segment_dual = []
 segment_eps = []
 wedges = []
+rays = []
+ray_dual = []
+half_planes = []
 
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
@@ -67,10 +70,35 @@ def get_segment_dual(e1, e2):
 
 	return Point(x, y)
 
+def get_ray(coords):
+	ox, oy = coords[0], coords[1]
+	mx, my = coords[2], coords[3]
+	if ox <= 500:
+		min_x = 0
+		max_x = 500
+	elif ox > 500:
+		min_x = 500
+		max_x = 1000
+
+	if ox == mx:
+		ox += 1
+	m = (my - oy)/(mx - ox)
+	b = int(my - m*mx)
+	if mx > ox:
+		ey = int(m*max_x + b)
+		ex = max_x
+	elif mx < ox:
+		ey = int(m*min_x + b)
+		ex = min_x
+
+	return [ox, oy, ex, ey]
+
 point_selected = None
 seg_selected = None
 end_point_1 = None
 end_point_2 = None
+ray_drawn = False
+ray_selected = None
 
 while True:
 	screen.fill((0,0,0))
@@ -95,6 +123,23 @@ while True:
 				segment_dual = []
 				segment_eps = []
 				wedges = []
+				rays = []
+				ray_dual = []
+				half_planes = []
+			if event.key == pygame.K_r:
+				if end_point_1 is not None and ray_selected is None:
+					if mx <= 500:
+						px = mx - 250
+						py = my - 250
+						sx, ex = 500, 1000
+					elif mx > 500:
+						px = mx - 750
+						py = my - 250
+						sx, ex = 0, 500
+					rays.append(get_ray([all_points[end_point_1].x, all_points[end_point_1].y, mx, my]))
+					ray_selected = -1
+					ray_drawn = True
+					
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button == 1:
 				if mx <= 500:
@@ -105,7 +150,10 @@ while True:
 					px = mx - 750
 					py = my - 250
 					sx, ex = 0, 500
-				if point_selected is None:
+				if end_point_1 is not None:
+					end_point_1 = None
+					end_point_2 = None
+				elif point_selected is None:
 					for p in range(len(all_points)):
 						if all_points[p].rect.collidepoint((mx, my)):
 							point_selected = p
@@ -115,14 +163,27 @@ while True:
 						point_dual.append(Line(px, py, sx, ex))
 					elif point_selected is not None:
 						seg_changed = []
+						ray_changed = []
 						for s in range(len(segment_eps)):
 							if point_selected in segment_eps[s]:
 								seg_changed.append([s, segment_eps[s].index(point_selected)])
+						'''
+						for r in range(len(rays)):
+							if point_selected in ray_eps[r]:
+								ray_changed.append(r)
+						'''
 						if seg_changed != []:
 							seg_selected = True
 				elif point_selected is not None:
 						point_selected = None
 						seg_selected = False
+						end_point_1 = None
+						end_point_2 = None
+
+				if ray_selected is not None:
+					rays[ray_selected] = get_ray(rays[ray_selected])
+					ray_selected = None
+					ray_drawn = False
 
 			elif event.button == 3 and point_selected is None:
 				if end_point_1 is None:
@@ -214,6 +275,13 @@ while True:
 				wedges[sc[0]] = [[point_dual[p1].startx, point_dual[p1].starty, point_dual[p1].endx, point_dual[p1].endy],
 								[point_dual[p2].startx, point_dual[p2].starty, point_dual[p2].endx, point_dual[p2].endy],
 								segment_dual[sc[0]], wedges[sc[0]][3]]
+
+	if ray_drawn == True:
+		rays[ray_selected][2] = mx
+		rays[ray_selected][3] = my
+
+	for r in range(len(rays)):
+		pygame.draw.line(screen, (255, 255, 255), (rays[r][0], rays[r][1]), (rays[r][2], rays[r][3]))
 
 	for s in range(len(segments)):
 		pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1])
