@@ -94,6 +94,7 @@ while True:
 				point_dual = []
 				segment_dual = []
 				segment_eps = []
+				wedges = []
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button == 1:
 				if mx <= 500:
@@ -153,6 +154,8 @@ while True:
 							if all_points == []:
 								segments = []
 								segment_eps = []
+								wedges = []
+								segment_dual = []
 						else:
 							if (((all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500)
 								or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500))
