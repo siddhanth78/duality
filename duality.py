@@ -146,6 +146,8 @@ while True:
 							for i in range(len(seg_pops)-1, -1, -1):
 								segments.pop(seg_pops[i])
 								segment_eps.pop(seg_pops[i])
+								segment_dual.pop(seg_pops[i])
+								wedges.pop(seg_pops[i])	
 							all_points.pop(p)
 							point_dual.pop(p)
 							if all_points == []:
