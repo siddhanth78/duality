@@ -14,6 +14,7 @@ wedges = []
 rays = []
 ray_dual = []
 half_planes = []
+ray_eps = []
 
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
@@ -99,6 +100,7 @@ end_point_1 = None
 end_point_2 = None
 ray_drawn = False
 ray_selected = None
+ray_redrawn = False
 
 while True:
 	screen.fill((0,0,0))
@@ -137,6 +139,7 @@ while True:
 						py = my - 250
 						sx, ex = 0, 500
 					rays.append(get_ray([all_points[end_point_1].x, all_points[end_point_1].y, mx, my]))
+					ray_eps.append([all_points[end_point_1].x, all_points[end_point_1].y])
 					ray_selected = -1
 					ray_drawn = True
 					
@@ -167,18 +170,21 @@ while True:
 						for s in range(len(segment_eps)):
 							if point_selected in segment_eps[s]:
 								seg_changed.append([s, segment_eps[s].index(point_selected)])
-						'''
 						for r in range(len(rays)):
-							if point_selected in ray_eps[r]:
+							if [all_points[point_selected].x, all_points[point_selected].y] == ray_eps[r]:
 								ray_changed.append(r)
-						'''
 						if seg_changed != []:
 							seg_selected = True
+						if ray_changed != []:
+							ray_redrawn = True
 				elif point_selected is not None:
 						point_selected = None
 						seg_selected = False
 						end_point_1 = None
 						end_point_2 = None
+						ray_redrawn = False
+						seg_changed = []
+						ray_changed = []
 
 				if ray_selected is not None:
 					rays[ray_selected] = get_ray(rays[ray_selected])
@@ -202,14 +208,21 @@ while True:
 					if end_point_2 is not None:
 						if flag == 1:
 							seg_pops = []
+							ray_pops = []
 							for s in range(len(segments)):
 								if p in segment_eps[s]:
 									seg_pops.append(s)
+							for r in range(len(rays)):
+								if [all_points[p].x, all_points[p].y] == ray_eps[r]:
+									ray_pops.append(r)
 							for i in range(len(seg_pops)-1, -1, -1):
 								segments.pop(seg_pops[i])
 								segment_eps.pop(seg_pops[i])
 								segment_dual.pop(seg_pops[i])
-								wedges.pop(seg_pops[i])	
+								wedges.pop(seg_pops[i])
+							for j in range(len(ray_pops)-1, -1, -1):
+								rays.pop(ray_pops[j])
+								ray_eps.pop(ray_pops[j])
 							all_points.pop(p)
 							point_dual.pop(p)
 							if all_points == []:
@@ -217,6 +230,10 @@ while True:
 								segment_eps = []
 								wedges = []
 								segment_dual = []
+								rays = []
+								ray_eps = []
+								ray_dual = []
+								half_planes = []
 						else:
 							if (((all_points[end_point_1].x <= 500 and all_points[end_point_2].x <= 500)
 								or (all_points[end_point_1].x > 500 and all_points[end_point_2].x > 500))
@@ -275,6 +292,10 @@ while True:
 				wedges[sc[0]] = [[point_dual[p1].startx, point_dual[p1].starty, point_dual[p1].endx, point_dual[p1].endy],
 								[point_dual[p2].startx, point_dual[p2].starty, point_dual[p2].endx, point_dual[p2].endy],
 								segment_dual[sc[0]], wedges[sc[0]][3]]
+		if ray_redrawn == True:
+			for rc in ray_changed:
+				rays[rc][0], rays[rc][1] = all_points[point_selected].x, all_points[point_selected].y
+				ray_eps[rc] = [all_points[point_selected].x, all_points[point_selected].y]
 
 	if ray_drawn == True:
 		rays[ray_selected][2] = mx
