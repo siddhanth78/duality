@@ -140,6 +140,7 @@ while True:
 						sx, ex = 0, 500
 					rays.append(get_ray([all_points[end_point_1].x, all_points[end_point_1].y, mx, my]))
 					ray_eps.append([all_points[end_point_1].x, all_points[end_point_1].y])
+					ray_dual.append(get_segment_dual([rays[-1][0], rays[-1][1]], [rays[-1][2], rays[-1][3]]))
 					ray_selected = -1
 					ray_drawn = True
 					
@@ -188,6 +189,7 @@ while True:
 
 				if ray_selected is not None:
 					rays[ray_selected] = get_ray(rays[ray_selected])
+					ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0], rays[ray_selected][1]], [rays[ray_selected][2], rays[ray_selected][3]])
 					ray_selected = None
 					ray_drawn = False
 
@@ -296,13 +298,21 @@ while True:
 			for rc in ray_changed:
 				rays[rc][0], rays[rc][1] = all_points[point_selected].x, all_points[point_selected].y
 				ray_eps[rc] = [all_points[point_selected].x, all_points[point_selected].y]
+				ray_dual[rc] = get_segment_dual([all_points[point_selected].x, all_points[point_selected].y], [rays[rc][2], rays[rc][3]])
 
 	if ray_drawn == True:
 		rays[ray_selected][2] = mx
 		rays[ray_selected][3] = my
+		ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0], rays[ray_selected][1]], [rays[ray_selected][2], rays[ray_selected][3]])
 
 	for r in range(len(rays)):
-		pygame.draw.line(screen, (255, 255, 255), (rays[r][0], rays[r][1]), (rays[r][2], rays[r][3]))
+		if ray_dual[r].rect.collidepoint((mx, my)):
+			r_col = (255,0,0)
+			pygame.draw.line(screen, (0, 255, 0), (rays[r][0], rays[r][1]), (rays[r][2], rays[r][3]))
+		else:
+			r_col = (255,255,255)
+			pygame.draw.line(screen, (255, 255, 255), (rays[r][0], rays[r][1]), (rays[r][2], rays[r][3]))
+		pygame.draw.circle(screen, r_col, (ray_dual[r].x, ray_dual[r].y), 5)
 
 	for s in range(len(segments)):
 		if segment_dual[s].rect.collidepoint((mx, my)):
