@@ -305,7 +305,12 @@ while True:
 		pygame.draw.line(screen, (255, 255, 255), (rays[r][0], rays[r][1]), (rays[r][2], rays[r][3]))
 
 	for s in range(len(segments)):
-		pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1])
+		if segment_dual[s].rect.collidepoint((mx, my)):
+			segment_dual[s].color = (255, 0, 0)
+			pygame.draw.line(screen, (0, 255, 0), segments[s][0], segments[s][1])
+		else:
+			segment_dual[s].color = (255, 255, 255)
+			pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1])
 		pygame.draw.circle(screen, segment_dual[s].color, (segment_dual[s].x, segment_dual[s].y), 5)
 		draw_polygon_alpha(screen, wedges[s][3], ((wedges[s][0][0], wedges[s][0][1]), (wedges[s][1][0], wedges[s][1][1]), (wedges[s][2].x, wedges[s][2].y)))
 		draw_polygon_alpha(screen, wedges[s][3], ((wedges[s][0][2], wedges[s][0][3]), (wedges[s][1][2], wedges[s][1][3]), (wedges[s][2].x, wedges[s][2].y)))
