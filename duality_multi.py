@@ -348,8 +348,20 @@ while True:
 			for sc in seg_changed:
 				if (segments[sc[0]][(sc[1]-1)*(-1)][0] <= 495 and all_points[point_selected][0].x > 495):
 					all_points[point_selected][0].x = 495
+					all_points[point_selected][0].rect = Rect(490, my-5, 10, 10)
+					point_dual[point_selected].startx = 500
+					point_dual[point_selected].starty = 250 + (((245*(-5)))-py)
+					point_dual[point_selected].endx = 1000
+					point_dual[point_selected].endy = 250 + ((245*5) - py)
+
 				elif (segments[sc[0]][(sc[1]-1)*(-1)][0] > 505 and all_points[point_selected][0].x <= 505):
 					all_points[point_selected][0].x = 505
+					all_points[point_selected][0].rect = Rect(500, my-5, 10, 10)
+					point_dual[point_selected].startx = 0
+					point_dual[point_selected].starty = 250 + ((((-245)*(-5)))-py)
+					point_dual[point_selected].endx = 500
+					point_dual[point_selected].endy = 250 + (((-245)*5) - py)
+
 				segments[sc[0]][sc[1]] = [all_points[point_selected][0].x, all_points[point_selected][0].y]
 				if segments[sc[0]][0][1] == segments[sc[0]][1][1]:
 					segments[sc[0]][1][1] -= 1
@@ -368,8 +380,20 @@ while True:
 			for rc in ray_changed:
 				if all_points[point_selected][0].x > 495 and rays[rc][0][0] <= 495:
 					all_points[point_selected][0].x = 495
+					all_points[point_selected][0].rect = Rect(490, my-5, 10, 10)
+					point_dual[point_selected].startx = 500
+					point_dual[point_selected].starty = 250 + (((245*(-5)))-py)
+					point_dual[point_selected].endx = 1000
+					point_dual[point_selected].endy = 250 + ((245*5) - py)
+
 				elif all_points[point_selected][0].x <= 505 and rays[rc][0][0] > 505:
 					all_points[point_selected][0].x = 505
+					all_points[point_selected][0].rect = Rect(500, my-5, 10, 10)
+					point_dual[point_selected].startx = 0
+					point_dual[point_selected].starty = 250 + ((((-245)*(-5)))-py)
+					point_dual[point_selected].endx = 500
+					point_dual[point_selected].endy = 250 + (((-245)*5) - py)
+
 				if all_points[point_selected][0].x <= 500:
 					if rays[rc][0][2] >= all_points[point_selected][0].x:
 						topc = (500, 0)
