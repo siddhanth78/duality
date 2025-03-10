@@ -127,7 +127,7 @@ while True:
 					seg_pops = []
 					ray_pops = []
 					for s in range(len(segments)):
-						if [all_points[p][0].x, all_points[p][0].y] in segments[s]:
+						if p in segment_eps[s]:
 							seg_pops.append(s)
 					for r in range(len(rays)):
 						if [all_points[p][0].x, all_points[p][0].y] == ray_eps[r]:
@@ -140,8 +140,16 @@ while True:
 					for j in range(len(ray_pops)-1, -1, -1):
 						rays.pop(ray_pops[j])
 						ray_eps.pop(ray_pops[j])
+						ray_dual.pop(ray_pops[j])
+						ray_wedges.pop(ray_pops[j])
 					all_points.pop(p)
 					point_dual.pop(p)
+					if seg_pops:
+						all_ps = []
+						for ap in all_points:
+							all_ps.append([ap[0].x, ap[0].y])
+						for se in range(len(segment_eps)):
+							segment_eps[se] = [all_ps.index(segments[se][0]), all_ps.index(segments[se][1])]
 					if all_points == []:
 						segments = []
 						segment_eps = []
@@ -231,7 +239,7 @@ while True:
 						seg_changed = []
 						ray_changed = []
 						for s in range(len(segment_eps)):
-							if [all_points[point_selected][0].x, all_points[point_selected][0].y] in segments[s]:
+							if point_selected in segment_eps[s]:
 								seg_changed.append([s, segment_eps[s].index(point_selected)])
 						for r in range(len(rays)):
 							if [all_points[point_selected][0].x, all_points[point_selected][0].y] == ray_eps[r]:
@@ -278,7 +286,7 @@ while True:
 							seg_pops = []
 							ray_pops = []
 							for s in range(len(segments)):
-								if [all_points[p][0].x, all_points[p][0].y] in segments[s]:
+								if p in segment_eps[s]:
 									seg_pops.append(s)
 							for r in range(len(rays)):
 								if [all_points[p][0].x, all_points[p][0].y] == ray_eps[r]:
@@ -295,6 +303,12 @@ while True:
 								ray_wedges.pop(ray_pops[j])
 							all_points.pop(p)
 							point_dual.pop(p)
+							if seg_pops:
+								all_ps = []
+								for ap in all_points:
+									all_ps.append([ap[0].x, ap[0].y])
+								for se in range(len(segment_eps)):
+									segment_eps[se] = [all_ps.index(segments[se][0]), all_ps.index(segments[se][1])]
 							if all_points == []:
 								segments = []
 								segment_eps = []
