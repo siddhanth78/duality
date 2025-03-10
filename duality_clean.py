@@ -126,6 +126,7 @@ while True:
 				segment_eps = []
 				wedges = []
 				rays = []
+				ray_eps = []
 				ray_dual = []
 				half_planes = []
 			if event.key == pygame.K_r:

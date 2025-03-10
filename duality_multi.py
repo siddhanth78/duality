@@ -13,7 +13,7 @@ segment_eps = []
 wedges = []
 rays = []
 ray_dual = []
-half_planes = []
+ray_wedges = []
 ray_eps = []
 
 class Point(pygame.sprite.Sprite):
@@ -127,7 +127,7 @@ while True:
 					seg_pops = []
 					ray_pops = []
 					for s in range(len(segments)):
-						if p in segment_eps[s]:
+						if [all_points[p][0].x, all_points[p][0].y] in segments[s]:
 							seg_pops.append(s)
 					for r in range(len(rays)):
 						if [all_points[p][0].x, all_points[p][0].y] == ray_eps[r]:
@@ -150,7 +150,7 @@ while True:
 						rays = []
 						ray_eps = []
 						ray_dual = []
-						half_planes = []
+						ray_wedges = []
 					end_point_1 = None
 					point_selected = None
 			elif event.key == pygame.K_c:
@@ -161,9 +161,10 @@ while True:
 				segment_eps = []
 				wedges = []
 				rays = []
+				ray_eps = []
 				ray_dual = []
-				half_planes = []
-			if event.key == pygame.K_r:
+				ray_wedges = []
+			elif event.key == pygame.K_r:
 				if end_point_1 is not None and ray_selected is None:
 					if mx <= 500:
 						px = mx - 250
@@ -173,9 +174,34 @@ while True:
 						px = mx - 750
 						py = my - 250
 						sx, ex = 0, 500
-					rays.append(get_ray([all_points[end_point_1][0].x, all_points[end_point_1][0].y, mx, my]))
+					rays.append([get_ray([all_points[end_point_1][0].x, all_points[end_point_1][0].y, mx, my]), all_points[end_point_1][1]])
 					ray_eps.append([all_points[end_point_1][0].x, all_points[end_point_1][0].y])
-					ray_dual.append(get_segment_dual([rays[-1][0], rays[-1][1]], [rays[-1][2], rays[-1][3]]))
+					ray_dual.append(get_segment_dual([rays[-1][0][0], rays[-1][0][1]], [rays[-1][0][2], rays[-1][0][3]]))
+					if all_points[end_point_1][0].x <= 500:
+						if mx >= all_points[end_point_1][0].x:
+							topc = (500, 0)
+							bottomc = (1000, 500)
+							raywsx, raywsy = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+							raywex, raywey = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+						else:
+							topc = (1000, 0)
+							bottomc = (500, 500)
+							raywsx, raywsy = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+							raywex, raywey = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+					else:
+						if mx >= all_points[end_point_1][0].x:
+							topc = (0, 0)
+							bottomc = (500, 500)
+							raywsx, raywsy = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+							raywex, raywey = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+						else:
+							topc = (500, 0)
+							bottomc = (0, 500)
+							raywsx, raywsy = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+							raywex, raywey = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+					ray_wedges.append([ray_dual[-1], 0, 500,
+									raywsx, raywsy, raywex, raywey,
+									topc, bottomc])
 					ray_selected = -1
 					ray_drawn = True
 					
@@ -205,7 +231,7 @@ while True:
 						seg_changed = []
 						ray_changed = []
 						for s in range(len(segment_eps)):
-							if point_selected in segment_eps[s]:
+							if [all_points[point_selected][0].x, all_points[point_selected][0].y] in segments[s]:
 								seg_changed.append([s, segment_eps[s].index(point_selected)])
 						for r in range(len(rays)):
 							if [all_points[point_selected][0].x, all_points[point_selected][0].y] == ray_eps[r]:
@@ -224,8 +250,12 @@ while True:
 						ray_changed = []
 
 				if ray_selected is not None:
-					rays[ray_selected] = get_ray(rays[ray_selected])
-					ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0], rays[ray_selected][1]], [rays[ray_selected][2], rays[ray_selected][3]])
+					rays[ray_selected][0] = get_ray(rays[ray_selected][0])
+					ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0][0], rays[ray_selected][0][1]], [rays[ray_selected][0][2], rays[ray_selected][0][3]])
+					ray_wedges[ray_selected] = [ray_dual[ray_selected], 0, 500,
+									ray_wedges[ray_selected][3], ray_wedges[ray_selected][4], ray_wedges[ray_selected][5], ray_wedges[ray_selected][6],
+									ray_wedges[ray_selected][7], ray_wedges[ray_selected][8]]
+
 					ray_selected = None
 					ray_drawn = False
 
@@ -248,7 +278,7 @@ while True:
 							seg_pops = []
 							ray_pops = []
 							for s in range(len(segments)):
-								if p in segment_eps[s]:
+								if [all_points[p][0].x, all_points[p][0].y] in segments[s]:
 									seg_pops.append(s)
 							for r in range(len(rays)):
 								if [all_points[p][0].x, all_points[p][0].y] == ray_eps[r]:
@@ -261,6 +291,8 @@ while True:
 							for j in range(len(ray_pops)-1, -1, -1):
 								rays.pop(ray_pops[j])
 								ray_eps.pop(ray_pops[j])
+								ray_dual.pop(ray_pops[j])
+								ray_wedges.pop(ray_pops[j])
 							all_points.pop(p)
 							point_dual.pop(p)
 							if all_points == []:
@@ -271,7 +303,7 @@ while True:
 								rays = []
 								ray_eps = []
 								ray_dual = []
-								half_planes = []
+								ray_wedges = []
 						else:
 							if (((all_points[end_point_1][0].x <= 500 and all_points[end_point_2][0].x <= 500)
 								or (all_points[end_point_1][0].x > 500 and all_points[end_point_2][0].x > 500))
@@ -334,23 +366,84 @@ while True:
 								segment_dual[sc[0]], wedges[sc[0]][3]]
 		if ray_redrawn == True:
 			for rc in ray_changed:
-				rays[rc][0], rays[rc][1] = all_points[point_selected][0].x, all_points[point_selected][0].y
+				if all_points[point_selected][0].x > 495 and rays[rc][0][0] <= 495:
+					all_points[point_selected][0].x = 495
+				elif all_points[point_selected][0].x <= 505 and rays[rc][0][0] > 505:
+					all_points[point_selected][0].x = 505
+				if all_points[point_selected][0].x <= 500:
+					if rays[rc][0][2] >= all_points[point_selected][0].x:
+						topc = (500, 0)
+						bottomc = (1000, 500)
+						raywsx, raywsy = point_dual[point_selected].startx, point_dual[point_selected].starty
+						raywex, raywey = point_dual[point_selected].endx, point_dual[point_selected].endy
+					else:
+						topc = (1000, 0)
+						bottomc = (500, 500)
+						raywsx, raywsy = point_dual[point_selected].endx, point_dual[point_selected].endy
+						raywex, raywey = point_dual[point_selected].startx, point_dual[point_selected].starty
+				else:
+					if rays[rc][0][2] >= all_points[point_selected][0].x:
+						topc = (0, 0)
+						bottomc = (500, 500)
+						raywsx, raywsy = point_dual[point_selected].startx, point_dual[point_selected].starty
+						raywex, raywey = point_dual[point_selected].endx, point_dual[point_selected].endy
+					else:
+						topc = (500, 0)
+						bottomc = (0, 500)
+						raywsx, raywsy = point_dual[point_selected].endx, point_dual[point_selected].endy
+						raywex, raywey = point_dual[point_selected].startx, point_dual[point_selected].starty
+
+				rays[rc][0][0], rays[rc][0][1] = all_points[point_selected][0].x, all_points[point_selected][0].y
 				ray_eps[rc] = [all_points[point_selected][0].x, all_points[point_selected][0].y]
-				ray_dual[rc] = get_segment_dual([all_points[point_selected][0].x, all_points[point_selected][0].y], [rays[rc][2], rays[rc][3]])
+				ray_dual[rc] = get_segment_dual([all_points[point_selected][0].x, all_points[point_selected][0].y], [rays[rc][0][2], rays[rc][0][3]])
+				ray_wedges[rc] = [ray_dual[rc], 0, 500,
+									raywsx, raywsy, raywex, raywey,
+									topc, bottomc]
+
 
 	if ray_drawn == True:
-		rays[ray_selected][2] = mx
-		rays[ray_selected][3] = my
-		ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0], rays[ray_selected][1]], [rays[ray_selected][2], rays[ray_selected][3]])
+		if rays[ray_selected][0][0] <= 500:
+			if mx >= rays[ray_selected][0][0]:
+				topc = (500, 0)
+				bottomc = (1000, 500)
+				raywsx, raywsy = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+				raywex, raywey = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+			else:
+				topc = (1000, 0)
+				bottomc = (500, 500)
+				raywsx, raywsy = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+				raywex, raywey = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+		else:
+			if mx >= rays[ray_selected][0][0]:
+				topc = (0, 0)
+				bottomc = (500, 500)
+				raywsx, raywsy = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+				raywex, raywey = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+			else:
+				topc = (500, 0)
+				bottomc = (0, 500)
+				raywsx, raywsy = point_dual[end_point_1].endx, point_dual[end_point_1].endy
+				raywex, raywey = point_dual[end_point_1].startx, point_dual[end_point_1].starty
+
+		rays[ray_selected][0][2] = mx
+		rays[ray_selected][0][3] = my
+		ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0][0], rays[ray_selected][0][1]], [rays[ray_selected][0][2], rays[ray_selected][0][3]])
+		ray_wedges[ray_selected] = [ray_dual[ray_selected], 0, 500,
+							raywsx, raywsy, raywex, raywey,
+							topc, bottomc]
 
 	for r in range(len(rays)):
 		if ray_dual[r].rect.collidepoint((mx, my)):
-			r_col = (255,0,0)
-			pygame.draw.line(screen, (0, 255, 0), (rays[r][0], rays[r][1]), (rays[r][2], rays[r][3]))
-		else:
 			r_col = (255,255,255)
-			pygame.draw.line(screen, (255, 255, 255), (rays[r][0], rays[r][1]), (rays[r][2], rays[r][3]))
+			thicn = 3
+		else:
+			r_col = rays[r][1]
+			thicn = 1
+		pygame.draw.line(screen, r_col, (rays[r][0][0], rays[r][0][1]), (rays[r][0][2], rays[r][0][3]), width=thicn)
+		pygame.draw.line(screen, r_col, (ray_dual[r].x, 0), (ray_dual[r].x, 500))
 		pygame.draw.circle(screen, r_col, (ray_dual[r].x, ray_dual[r].y), 5)
+		draw_polygon_alpha(screen, (*r_col, 127), ((ray_wedges[r][0].x, ray_wedges[r][0].y), (ray_wedges[r][3], ray_wedges[r][4]), ray_wedges[r][7], (ray_wedges[r][0].x, 0)))
+		draw_polygon_alpha(screen, (*r_col, 127), ((ray_wedges[r][0].x, ray_wedges[r][0].y), (ray_wedges[r][5], ray_wedges[r][6]), ray_wedges[r][8], (ray_wedges[r][0].x, 500)))
 
 	for s in range(len(segments)):
 		if segment_dual[s].rect.collidepoint((mx, my)):
