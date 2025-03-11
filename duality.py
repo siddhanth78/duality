@@ -175,6 +175,15 @@ while True:
 				ray_eps = []
 				ray_dual = []
 				ray_wedges = []
+				point_selected = None
+				seg_selected = False
+				ray_selected = None
+				ray_drawn = False
+				end_point_1 = None
+				end_point_2 = None
+				ray_redrawn = False
+				seg_changed = []
+				ray_changed = []
 			elif event.key == pygame.K_r:
 				if end_point_1 is not None and ray_selected is None:
 					if mx <= 500:
@@ -185,7 +194,9 @@ while True:
 						px = mx - 750
 						py = my - 250
 						sx, ex = 0, 500
-					rays.append([get_ray([all_points[end_point_1][0].x, all_points[end_point_1][0].y, mx, my]), all_points[end_point_1][1]])
+					color_del = color_pallete[color_pt]
+					color_pt = (color_pt+1)%len(color_pallete)
+					rays.append([get_ray([all_points[end_point_1][0].x, all_points[end_point_1][0].y, mx, my]), color_del])
 					ray_eps.append([all_points[end_point_1][0].x, all_points[end_point_1][0].y])
 					ray_dual.append(get_segment_dual([rays[-1][0][0], rays[-1][0][1]], [rays[-1][0][2], rays[-1][0][3]]))
 					if all_points[end_point_1][0].x <= 500:
@@ -245,7 +256,7 @@ while True:
 						for s in range(len(segment_eps)):
 							if point_selected in segment_eps[s]:
 								seg_changed.append([s, segment_eps[s].index(point_selected)])
-						for r in range(len(rays)):
+						for r in range(len(ray_eps)):
 							if [all_points[point_selected][0].x, all_points[point_selected][0].y] == ray_eps[r]:
 								ray_changed.append(r)
 						if seg_changed != []:
@@ -263,6 +274,7 @@ while True:
 
 				if ray_selected is not None:
 					rays[ray_selected][0] = get_ray(rays[ray_selected][0])
+					ray_eps[ray_selected] = [rays[ray_selected][0][0], rays[ray_selected][0][1]]
 					ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0][0], rays[ray_selected][0][1]], [rays[ray_selected][0][2], rays[ray_selected][0][3]])
 					ray_wedges[ray_selected] = [ray_dual[ray_selected], 0, 500,
 									ray_wedges[ray_selected][3], ray_wedges[ray_selected][4], ray_wedges[ray_selected][5], ray_wedges[ray_selected][6],
@@ -289,10 +301,10 @@ while True:
 						if flag == 1:
 							seg_pops = []
 							ray_pops = []
-							for s in range(len(segments)):
+							for s in range(len(segment_eps)):
 								if p in segment_eps[s]:
 									seg_pops.append(s)
-							for r in range(len(rays)):
+							for r in range(len(ray_eps)):
 								if [all_points[p][0].x, all_points[p][0].y] == ray_eps[r]:
 									ray_pops.append(r)
 							for i in range(len(seg_pops)-1, -1, -1):
@@ -312,7 +324,10 @@ while True:
 								for ap in all_points:
 									all_ps.append([ap[0].x, ap[0].y])
 								for se in range(len(segment_eps)):
-									segment_eps[se] = [all_ps.index(segments[se][0]), all_ps.index(segments[se][1])]
+									try:
+										segment_eps[se] = [all_ps.index(segments[se][0]), all_ps.index(segments[se][1])]
+									except:
+										print(all_ps, segment_eps, segments)
 							if all_points == []:
 								segments = []
 								segment_eps = []
@@ -469,6 +484,7 @@ while True:
 
 		rays[ray_selected][0][2] = mx
 		rays[ray_selected][0][3] = my
+		ray_eps[ray_selected] = [rays[ray_selected][0][0], rays[ray_selected][0][1]]
 		ray_dual[ray_selected] = get_segment_dual([rays[ray_selected][0][0], rays[ray_selected][0][1]], [rays[ray_selected][0][2], rays[ray_selected][0][3]])
 		ray_wedges[ray_selected] = [ray_dual[ray_selected], 0, 500,
 							raywsx, raywsy, raywex, raywey,
