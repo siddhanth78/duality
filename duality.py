@@ -1,6 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 import random
+from color_gen import gen_color
 
 screen = pygame.display.set_mode((1000, 500))
 clock = pygame.time.Clock()
@@ -15,6 +16,8 @@ rays = []
 ray_dual = []
 ray_wedges = []
 ray_eps = []
+color_pallete = gen_color()
+color_pt = 0
 
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
@@ -232,7 +235,8 @@ while True:
 							point_selected = p
 							break
 					if point_selected is None:
-						color_del = (random.randint(145, 255), random.randint(145, 255),random.randint(145, 255))
+						color_del = color_pallete[color_pt]
+						color_pt = (color_pt+1)%len(color_pallete)
 						all_points.append([Point(mx, my), color_del])
 						point_dual.append(Line(px, py, sx, ex))
 					elif point_selected is not None:
@@ -334,8 +338,8 @@ while True:
 									segment_eps.append([end_point_2, end_point_1])
 								segment_dual.append(get_segment_dual(sorted_eps[0], sorted_eps[1]))
 								p1, p2 = segment_eps[-1][0], segment_eps[-1][1]
-								color_delta = random.randint(-120, 30)
-								all_points[end_point_1][1] = (random.randint(145, 255), random.randint(145, 255), random.randint(145, 255))
+								all_points[end_point_1][1] = color_pallete[color_pt]
+								color_pt = (color_pt+1)%len(color_pallete)
 								all_points[end_point_2][1] = all_points[end_point_1][1]
 								wedges.append([[point_dual[p1].startx, point_dual[p1].starty, point_dual[p1].endx, point_dual[p1].endy],
 												[point_dual[p2].startx, point_dual[p2].starty, point_dual[p2].endx, point_dual[p2].endy],
