@@ -475,13 +475,13 @@ while True:
 			r_col = (255,255,255)
 			thicn = 3
 		else:
-			r_col = rays[r][1]
+			r_col = (*rays[r][1], 127)
 			thicn = 1
 		pygame.draw.line(screen, r_col, (rays[r][0][0], rays[r][0][1]), (rays[r][0][2], rays[r][0][3]), width=thicn)
 		pygame.draw.line(screen, r_col, (ray_dual[r].x, 0), (ray_dual[r].x, 500))
 		pygame.draw.circle(screen, r_col, (ray_dual[r].x, ray_dual[r].y), 5)
-		draw_polygon_alpha(screen, (*r_col, 127), ((ray_wedges[r][0].x, ray_wedges[r][0].y), (ray_wedges[r][3], ray_wedges[r][4]), ray_wedges[r][7], (ray_wedges[r][0].x, 0)))
-		draw_polygon_alpha(screen, (*r_col, 127), ((ray_wedges[r][0].x, ray_wedges[r][0].y), (ray_wedges[r][5], ray_wedges[r][6]), ray_wedges[r][8], (ray_wedges[r][0].x, 500)))
+		draw_polygon_alpha(screen, r_col, ((ray_wedges[r][0].x, ray_wedges[r][0].y), (ray_wedges[r][3], ray_wedges[r][4]), ray_wedges[r][7], (ray_wedges[r][0].x, 0)))
+		draw_polygon_alpha(screen, r_col, ((ray_wedges[r][0].x, ray_wedges[r][0].y), (ray_wedges[r][5], ray_wedges[r][6]), ray_wedges[r][8], (ray_wedges[r][0].x, 500)))
 
 	for s in range(len(segments)):
 		if segment_dual[s].rect.collidepoint((mx, my)):
@@ -491,8 +491,8 @@ while True:
 			segment_dual[s].color = wedges[s][3]
 			pygame.draw.line(screen, wedges[s][3], segments[s][0], segments[s][1])
 		pygame.draw.circle(screen, segment_dual[s].color, (segment_dual[s].x, segment_dual[s].y), 5)
-		draw_polygon_alpha(screen, wedges[s][3], ((wedges[s][0][0], wedges[s][0][1]), (wedges[s][1][0], wedges[s][1][1]), (wedges[s][2].x, wedges[s][2].y)))
-		draw_polygon_alpha(screen, wedges[s][3], ((wedges[s][0][2], wedges[s][0][3]), (wedges[s][1][2], wedges[s][1][3]), (wedges[s][2].x, wedges[s][2].y)))
+		draw_polygon_alpha(screen, segment_dual[s].color, ((wedges[s][0][0], wedges[s][0][1]), (wedges[s][1][0], wedges[s][1][1]), (wedges[s][2].x, wedges[s][2].y)))
+		draw_polygon_alpha(screen, segment_dual[s].color, ((wedges[s][0][2], wedges[s][0][3]), (wedges[s][1][2], wedges[s][1][3]), (wedges[s][2].x, wedges[s][2].y)))
 
 	for p in range(len(all_points)):
 		if all_points[p][0].rect.collidepoint((mx, my)):
