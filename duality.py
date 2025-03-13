@@ -196,6 +196,7 @@ while True:
 						sx, ex = 0, 500
 					color_del = color_pallete[color_pt]
 					color_pt = (color_pt+1)%len(color_pallete)
+					all_points[end_point_1][1] = color_del
 					rays.append([get_ray([all_points[end_point_1][0].x, all_points[end_point_1][0].y, mx, my]), color_del])
 					ray_eps.append([all_points[end_point_1][0].x, all_points[end_point_1][0].y])
 					ray_dual.append(get_segment_dual([rays[-1][0][0], rays[-1][0][1]], [rays[-1][0][2], rays[-1][0][3]]))
