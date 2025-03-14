@@ -19,6 +19,78 @@ ray_eps = []
 color_pallete = gen_color()
 color_pt = 0
 
+'''
+def show_whole_grid(screen, clock, all_points, point_dual, rays, ray_eps, ray_wedges, ray_dual, segments, segment_dual, wedges, segment_eps):
+        scale = 0.5
+        while True:
+            screen.fill((0,0,0))
+            mx, my = pygame.mouse.get_pos()
+            mx, my = int(mx)*scale, int(my)*scale
+            pygame.draw.line(screen, (128, 128, 128), (500, 0), (500, 500), 7)
+            pygame.draw.line(screen, (64, 64, 64), (250, 0), (250, 500), 3)
+            pygame.draw.line(screen, (64, 64, 64), (750, 0), (750, 500), 3)
+            pygame.draw.line(screen, (64, 64, 64), (0, 250), (1000, 250), 3)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit(0)
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_j:
+                        scale = scale*0.5
+                    elif event.key == pygame.K_k:
+                        scale = scale*2
+                    elif event.key == pygame.K_e:
+                        return
+            for r in range(len(rays)):
+                if ray_dual[r].rect.collidepoint((mx, my)):
+                    r_col = (255,255,255)
+                    thicn = 3
+                else:
+                    r_col = (*rays[r][1], 127)
+                    thicn = 1
+                pygame.draw.line(screen, r_col, (rays[r][0][0]*scale, rays[r][0][1]*scale), (rays[r][0][2]*scale, rays[r][0][3]*scale), width=thicn)
+                pygame.draw.line(screen, r_col, (ray_dual[r].x*scale, 0), (ray_dual[r].x*scale, 500))
+                pygame.draw.circle(screen, r_col, (ray_dual[r].x*scale, ray_dual[r].y*scale), 5)
+                draw_polygon_alpha(screen, r_col, ((ray_wedges[r][0].x*scale, ray_wedges[r][0].y*scale), (ray_wedges[r][3], ray_wedges[r][4]),
+                                                   ray_wedges[r][7], (ray_wedges[r][0].x*scale, 0)))
+                draw_polygon_alpha(screen, r_col, ((ray_wedges[r][0].x*scale, ray_wedges[r][0].y*scale), (ray_wedges[r][5], ray_wedges[r][6]),
+                                                   ray_wedges[r][8], (ray_wedges[r][0].x*scale, 500)))
+
+            for s in range(len(segments)):
+                if segment_dual[s].rect.collidepoint((mx, my)):
+                    segment_dual[s].color = (255, 255, 255)
+                    pygame.draw.line(screen, (255, 255, 255), segments[s][0], segments[s][1], width=3)
+                else:
+                    segment_dual[s].color = wedges[s][3]
+                    pygame.draw.line(screen, wedges[s][3], segments[s][0], segments[s][1])
+                pygame.draw.circle(screen, segment_dual[s].color, (segment_dual[s].x*scale, segment_dual[s].y*scale), 5)
+                draw_polygon_alpha(screen, segment_dual[s].color, ((wedges[s][0][0], wedges[s][0][1]), (wedges[s][1][0], wedges[s][1][1]),
+                                                                   (wedges[s][2].x*scale, wedges[s][2].y*scale)))
+                draw_polygon_alpha(screen, segment_dual[s].color, ((wedges[s][0][2], wedges[s][0][3]), (wedges[s][1][2], wedges[s][1][3]),
+                                                                   (wedges[s][2].x*scale, wedges[s][2].y*scale)))
+
+            for p in range(len(all_points)):
+                if all_points[p][0].rect.collidepoint((mx, my)):
+                    all_points[p][0].color = (255, 255, 255) 
+                    point_dual[p].color = (255, 255, 255)
+                    thiccness = 3
+                else:
+                    all_points[p][0].color = all_points[p][1]
+                    point_dual[p].color = all_points[p][1]
+                    thiccness = 1
+                if p == end_point_1:
+                    all_points[p][0].color = (255, 255, 0)
+                    point_dual[p].color = (255, 255, 0)
+                    thiccness = 3
+                pygame.draw.circle(screen, all_points[p][0].color, (all_points[p][0].x*scale, all_points[p][0].y*scale), 5)
+                pygame.draw.line(screen, point_dual[p].color, (point_dual[p].startx*scale, point_dual[p].starty*scale),
+                                 (point_dual[p].endx*scale, point_dual[p].endy*scale), width=thiccness)
+
+            pygame.display.update()
+            clock.tick(15)
+'''
+
 class Point(pygame.sprite.Sprite):
 	def __init__(self, x, y):
 		self.x = x
@@ -227,6 +299,9 @@ while True:
 									topc, bottomc])
 					ray_selected = -1
 					ray_drawn = True
+
+			elif event.key == pygame.K_e:
+				show_whole_grid(screen, clock, all_points, point_dual, rays, ray_eps, ray_wedges, ray_dual, segments, segment_dual, wedges, segment_eps)
 					
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button == 1:
@@ -257,16 +332,15 @@ while True:
 						for s in range(len(segment_eps)):
 							if point_selected in segment_eps[s]:
 								seg_changed.append([s, segment_eps[s].index(point_selected)])
+								seg_selected = True
 						for r in range(len(ray_eps)):
 							if [all_points[point_selected][0].x, all_points[point_selected][0].y] == ray_eps[r]:
 								ray_changed.append(r)
-						if seg_changed != []:
-							seg_selected = True
-						if ray_changed != []:
-							ray_redrawn = True
+								ray_redrawn = True
 				elif point_selected is not None:
 						point_selected = None
 						seg_selected = False
+						ray_selected = None
 						end_point_1 = None
 						end_point_2 = None
 						ray_redrawn = False
