@@ -30,9 +30,9 @@ class Point(pygame.sprite.Sprite):
 class Line(pygame.sprite.Sprite):
 	def __init__(self, px, py, sx, ex):
 		self.startx = sx
-		self.starty = 250 + (((px*(-5)))-py)
+		self.starty = 250 + (((px*(5)))-py)
 		self.endx = ex
-		self.endy = 250 + ((px*5) - py)
+		self.endy = 250 + ((px*-5) - py)
 		self.color = (255, 255, 255)
 
 def draw_polygon_alpha(surface, color, points):
@@ -46,7 +46,7 @@ def draw_polygon_alpha(surface, color, points):
 def get_segment_dual(e1, e2):
 	x_0, y_0 = e1[0], e1[1]
 	x_1, y_1 = e2[0], e2[1]
-	
+
 	if x_0 <= 500:
 		x_0 = x_0 - 250
 		x_1 = x_1 - 250
@@ -62,10 +62,11 @@ def get_segment_dual(e1, e2):
 	if x_0 == x_1: x_1 += 1
 
 	m = (y_1 - y_0)/(x_1 - x_0)
+	
 	if x_flag == 0:
-		x = int(750 + m*50)
+		x = int(750 + m*-50)
 	elif x_flag == 1:
-		x = int(250 + m*50)
+		x = int(250 + m*-50)
 	y = 250 + int(m*x_0 - y_0)
 
 	if x_flag == 0 and x < 500:
@@ -378,9 +379,9 @@ while True:
 		all_points[point_selected][0].x, all_points[point_selected][0].y = mx, my
 		all_points[point_selected][0].rect = Rect(mx-5, my-5, 10, 10)
 		point_dual[point_selected].startx = sx
-		point_dual[point_selected].starty = 250 + (((px*(-5)))-py)
+		point_dual[point_selected].starty = 250 + (((px*(5)))-py)
 		point_dual[point_selected].endx = ex
-		point_dual[point_selected].endy = 250 + ((px*5) - py)
+		point_dual[point_selected].endy = 250 + ((px*-5) - py)
 		if seg_selected == True:
 			for sc in seg_changed:
 				if (segments[sc[0]][(sc[1]-1)*(-1)][0] <= 495 and all_points[point_selected][0].x > 495):
@@ -395,9 +396,9 @@ while True:
 					all_points[point_selected][0].x = 505
 					all_points[point_selected][0].rect = Rect(500, my-5, 10, 10)
 					point_dual[point_selected].startx = 0
-					point_dual[point_selected].starty = 250 + ((((-245)*(-5)))-py)
+					point_dual[point_selected].starty = 250 + ((((-245)*(5)))-py)
 					point_dual[point_selected].endx = 500
-					point_dual[point_selected].endy = 250 + (((-245)*5) - py)
+					point_dual[point_selected].endy = 250 + (((-245)*-5) - py)
 
 				segments[sc[0]][sc[1]] = [all_points[point_selected][0].x, all_points[point_selected][0].y]
 				if segments[sc[0]][0][1] == segments[sc[0]][1][1]:
@@ -419,17 +420,17 @@ while True:
 					all_points[point_selected][0].x = 495
 					all_points[point_selected][0].rect = Rect(490, my-5, 10, 10)
 					point_dual[point_selected].startx = 500
-					point_dual[point_selected].starty = 250 + (((245*(-5)))-py)
+					point_dual[point_selected].starty = 250 + (((245*(5)))-py)
 					point_dual[point_selected].endx = 1000
-					point_dual[point_selected].endy = 250 + ((245*5) - py)
+					point_dual[point_selected].endy = 250 + ((245*-5) - py)
 
 				elif all_points[point_selected][0].x <= 505 and rays[rc][0][0] > 505:
 					all_points[point_selected][0].x = 505
 					all_points[point_selected][0].rect = Rect(500, my-5, 10, 10)
 					point_dual[point_selected].startx = 0
-					point_dual[point_selected].starty = 250 + ((((-245)*(-5)))-py)
+					point_dual[point_selected].starty = 250 + ((((-245)*(5)))-py)
 					point_dual[point_selected].endx = 500
-					point_dual[point_selected].endy = 250 + (((-245)*5) - py)
+					point_dual[point_selected].endy = 250 + (((-245)*-5) - py)
 
 				if all_points[point_selected][0].x <= 500:
 					if rays[rc][0][2] >= all_points[point_selected][0].x:
